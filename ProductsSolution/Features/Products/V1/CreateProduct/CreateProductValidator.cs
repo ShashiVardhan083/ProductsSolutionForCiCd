@@ -1,0 +1,25 @@
+﻿using FastEndpoints;
+using FluentValidation;
+
+namespace ProductsSolution.Features.Products.V1.CreateProduct
+{
+    public class CreateProductValidator : Validator<CreateProductRequest>
+    {
+        public CreateProductValidator()
+        {
+            RuleFor(x => x.Name)
+                    .NotEmpty()
+                    .WithMessage("Product name is required.")
+                    .MinimumLength(3)
+                    .WithMessage("Product name must be at least 3 characters long.");
+
+            RuleFor(x => x.Price)
+                .GreaterThan(10)
+                .WithMessage("Price must be greater than 10.");
+
+            RuleFor(x => x.IsAvailable)
+                .NotNull()
+                .WithMessage("Availability status must be provided.");
+        }
+    }
+}
