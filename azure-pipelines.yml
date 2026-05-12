@@ -43,5 +43,5 @@ steps:
   inputs:
     azureSubscription: 'devops-service-connection'
     appType: 'webApp'
-    appName: 'products-webapp-devops'
+    appName: 'products-solution-devops-rg'
     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
