@@ -39,4 +39,9 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-  
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'devops-service-connection'
+    appType: 'webApp'
+    appName: 'products-webapp-devops'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
