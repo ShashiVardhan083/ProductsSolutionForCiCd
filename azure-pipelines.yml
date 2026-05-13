@@ -46,4 +46,7 @@ steps:
     azureSubscription: 'devops-service-connection'
     appType: 'webApp'
     appName: 'products-solution-devops-rg'
+    deployToSlotOrASE: true
+    resourceGroupName: 'devops-demo-rg'
+    slotName: 'staging'
     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
