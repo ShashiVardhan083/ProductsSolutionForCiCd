@@ -20,7 +20,7 @@ builder.Services.SwaggerDocument(o =>
     o.DocumentSettings = s =>
     {
         s.DocumentName = "v1";
-        s.Title = "Production Products API";
+        s.Title = " Products API(Production)";
         s.Version = "v1";
     };
     o.MaxEndpointVersion = 1;
