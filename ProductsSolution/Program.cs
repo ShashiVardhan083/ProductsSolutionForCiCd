@@ -52,6 +52,15 @@ builder.Services.AddApiVersioning(options =>
 var app = builder.Build();
 
 app.UseSwaggerGen();
+app.MapGet("/environment", (IConfiguration config) =>
+{
+    var env = config["EnvironmentName"];
+
+    return Results.Ok(new
+    {
+        Environment = env
+    });
+});
 app.UseFastEndpoints(c =>
 {
     c.Versioning.Prefix = "v";
@@ -72,13 +81,5 @@ app.UseFastEndpoints(c =>
 });
 
 app.MapControllers();
-app.MapGet("/environment", (IConfiguration config) =>
-{
-    var env = config["EnvironmentName"];
 
-    return Results.Ok(new
-    {
-        Environment = env
-    });
-});
 app.Run();
