@@ -9,44 +9,78 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
-steps:
+stages:
 
-- task: NuGetToolInstaller@1
+- stage: BuildAndDeployStaging
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+  jobs:
 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+  - job: Build
+    steps:
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    - task: NuGetToolInstaller@1
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
 
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'devops-service-connection'
-    appType: 'webApp'
-    appName: 'products-solution-devops-rg'
-    deployToSlotOrASE: true
-    resourceGroupName: 'devops-demo-rg'
-    slotName: 'staging'
-    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    - task: VSTest@2
+      inputs:
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'devops-service-connection'
+        appType: 'webApp'
+        appName: 'products-solution-devops-rg'
+        deployToSlotOrASE: true
+        resourceGroupName: 'devops-demo-rg'
+        slotName: 'staging'
+        package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+
+- stage: DeployProduction
+
+  dependsOn: BuildAndDeployStaging
+
+  jobs:
+
+  - deployment: DeployToProduction
+
+    environment: 'Production'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: 'drop'
+              downloadPath: '$(Pipeline.Workspace)'
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'devops-service-connection'
+              appType: 'webApp'
+              appName: 'products-solution-devops-rg'
+              package: '$(Pipeline.Workspace)/**/*.zip'
