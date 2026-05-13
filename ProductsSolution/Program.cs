@@ -72,4 +72,13 @@ app.UseFastEndpoints(c =>
 });
 
 app.MapControllers();
+app.MapGet("/environment", (IConfiguration config) =>
+{
+    var env = config["EnvironmentName"];
+
+    return Results.Ok(new
+    {
+        Environment = env
+    });
+});
 app.Run();
